@@ -52,6 +52,47 @@ Compile the `.so` binaries for the target architectures (`arm64-v8a`, `armeabi-v
 #### iOS
 Compile a universal iOS framework or `libturbovec.a` static library and configure the CocoaPods podspec to vendor it.
 
+### 3. Developer Local Setup & Configuration
+
+For local development without bundling/packaging libraries inside the target application folders, you can compile the native libraries anywhere on your system and point the Dart environment to the compiled binary.
+
+#### A. Build the Native Rust Library
+Go to your `turbovec` repository directory (e.g. `codebase_ia/turbovec`) and build the release shared library:
+```bash
+cargo build --release
+```
+This generates the platform-specific library in the `target/release/` directory:
+- macOS: `target/release/libturbovec.dylib`
+- Linux: `target/release/libturbovec.so`
+- Windows: `target/release/turbovec.dll`
+
+#### B. Point `saia_turbovec` to the Local Library
+
+You can configure the native library path in two ways:
+
+##### 1. Compile-Time / Test-Time Environment Variable (Recommended for Tests/CLI)
+Use `--dart-define=TURBOVEC_LIB_PATH=<path>` when running/testing your code. For example:
+
+```bash
+flutter test --dart-define=TURBOVEC_LIB_PATH=/Users/serzen/codebase_ia/turbovec/target/release/libturbovec.dylib
+```
+
+##### 2. Runtime Setter (Recommended for App Setup)
+Directly configure the path on the `TurboVecBindings` class **before** creating or loading any index:
+
+```dart
+import 'package:saia_turbovec/saia_turbovec.dart';
+
+void main() {
+  // Set custom path dynamically (pointing to your local cargo output)
+  TurboVecBindings.customLibraryPath = '/Users/serzen/codebase_ia/turbovec/target/release/libturbovec.dylib';
+
+  // Then use the index normally
+  final index = TurboVecIndex.createLazy(bitWidth: 4);
+  ...
+}
+```
+
 ---
 
 ## Usage Example

@@ -1,6 +1,8 @@
 import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart';
 import 'src/turbovec_bindings.dart';
+export 'src/turbovec_bindings.dart' show TurboVecBindings;
+
 
 /// Represents a result match from a vector query search.
 class TurboVecResult {

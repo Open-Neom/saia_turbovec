@@ -21,5 +21,13 @@ dev_dependencies:
 flutter:
   plugin:
     platforms:
+      android:
+        ffiPlugin: true
+      ios:
+        ffiPlugin: true
       macos:
-        pluginClass: SaiaTurbovecPlugin
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true
+      linux:
+        ffiPlugin: true

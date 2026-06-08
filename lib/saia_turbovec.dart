@@ -7,13 +7,11 @@ class TurboVecResult {
   final int id;
   final double score;
 
-  const TurboVecResult({
-    required this.id,
-    required this.score,
-  });
+  const TurboVecResult({required this.id, required this.score});
 
   @override
-  String toString() => 'TurboVecResult(id: $id, score: ${score.toStringAsFixed(4)})';
+  String toString() =>
+      'TurboVecResult(id: $id, score: ${score.toStringAsFixed(4)})';
 }
 
 /// A TurboQuant quantized vector index with stable external uint64 IDs.
@@ -83,7 +81,9 @@ class TurboVecIndex {
     if (vector.isEmpty) return;
 
     final bindings = TurboVecBindings.instance;
-    final vectorsPtr = malloc.allocate<ffi.Float>(ffi.sizeOf<ffi.Float>() * vector.length);
+    final vectorsPtr = malloc.allocate<ffi.Float>(
+      ffi.sizeOf<ffi.Float>() * vector.length,
+    );
     final idsPtr = malloc.allocate<ffi.Uint64>(ffi.sizeOf<ffi.Uint64>());
 
     try {
@@ -92,7 +92,13 @@ class TurboVecIndex {
         vectorsPtr[i] = vector[i];
       }
 
-      final ok = bindings.addWithIds2d(_ptr, vectorsPtr, vector.length, idsPtr, 1);
+      final ok = bindings.addWithIds2d(
+        _ptr,
+        vectorsPtr,
+        vector.length,
+        idsPtr,
+        1,
+      );
       if (!ok) {
         throw StateError('Failed to add vector with id $id to turbovec index');
       }
@@ -115,24 +121,38 @@ class TurboVecIndex {
     if (vectorDim == 0) return;
 
     final bindings = TurboVecBindings.instance;
-    final vectorsPtr = malloc.allocate<ffi.Float>(ffi.sizeOf<ffi.Float>() * count * vectorDim);
-    final idsPtr = malloc.allocate<ffi.Uint64>(ffi.sizeOf<ffi.Uint64>() * count);
+    final vectorsPtr = malloc.allocate<ffi.Float>(
+      ffi.sizeOf<ffi.Float>() * count * vectorDim,
+    );
+    final idsPtr = malloc.allocate<ffi.Uint64>(
+      ffi.sizeOf<ffi.Uint64>() * count,
+    );
 
     try {
       for (int i = 0; i < count; i++) {
         idsPtr[i] = ids[i];
         final vec = vectors[i];
         if (vec.length != vectorDim) {
-          throw ArgumentError('All vectors in the batch must have the same dimension ($vectorDim)');
+          throw ArgumentError(
+            'All vectors in the batch must have the same dimension ($vectorDim)',
+          );
         }
         for (int j = 0; j < vectorDim; j++) {
           vectorsPtr[i * vectorDim + j] = vec[j];
         }
       }
 
-      final ok = bindings.addWithIds2d(_ptr, vectorsPtr, vectorDim, idsPtr, count);
+      final ok = bindings.addWithIds2d(
+        _ptr,
+        vectorsPtr,
+        vectorDim,
+        idsPtr,
+        count,
+      );
       if (!ok) {
-        throw StateError('Failed to add batch of $count vectors to turbovec index');
+        throw StateError(
+          'Failed to add batch of $count vectors to turbovec index',
+        );
       }
     } finally {
       malloc.free(vectorsPtr);
@@ -143,12 +163,18 @@ class TurboVecIndex {
   /// Search the index for the top-[k] most similar matches to [query].
   ///
   /// Optionally restricts results to candidates in [allowlist].
-  List<TurboVecResult> search(List<double> query, int k, {List<int>? allowlist}) {
+  List<TurboVecResult> search(
+    List<double> query,
+    int k, {
+    List<int>? allowlist,
+  }) {
     _checkNotClosed();
     if (query.isEmpty || k <= 0 || len == 0) return [];
 
     final bindings = TurboVecBindings.instance;
-    final queryPtr = malloc.allocate<ffi.Float>(ffi.sizeOf<ffi.Float>() * query.length);
+    final queryPtr = malloc.allocate<ffi.Float>(
+      ffi.sizeOf<ffi.Float>() * query.length,
+    );
     for (int i = 0; i < query.length; i++) {
       queryPtr[i] = query[i];
     }
@@ -157,7 +183,9 @@ class TurboVecIndex {
     int allowlistLen = 0;
     if (allowlist != null && allowlist.isNotEmpty) {
       allowlistLen = allowlist.length;
-      allowlistPtr = malloc.allocate<ffi.Uint64>(ffi.sizeOf<ffi.Uint64>() * allowlistLen);
+      allowlistPtr = malloc.allocate<ffi.Uint64>(
+        ffi.sizeOf<ffi.Uint64>() * allowlistLen,
+      );
       for (int i = 0; i < allowlistLen; i++) {
         allowlistPtr[i] = allowlist[i];
       }
@@ -180,10 +208,7 @@ class TurboVecIndex {
 
       final results = <TurboVecResult>[];
       for (int i = 0; i < resultsCount; i++) {
-        results.add(TurboVecResult(
-          id: idsOut[i],
-          score: scoresOut[i],
-        ));
+        results.add(TurboVecResult(id: idsOut[i], score: scoresOut[i]));
       }
       return results;
     } finally {

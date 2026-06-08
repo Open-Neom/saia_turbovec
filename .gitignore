@@ -1,0 +1,17 @@
+# Files and directories created by pub
+.dart_tool/
+.packages
+pubspec.lock
+
+# Flutter build artifacts
+build/
+
+# Ephemeral plugins files
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store

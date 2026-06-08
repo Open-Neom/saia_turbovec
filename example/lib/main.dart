@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _timingInfo = '';
   List<TurboVecResult> _searchResults = [];
   bool _useAllowlist = false;
-  
+
   // Keep track of generated IDs to display in allowlist toggle options
   final List<int> _allIds = [];
   final List<List<double>> _allVectors = [];
@@ -88,7 +88,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _allVectors.clear();
 
     for (int i = 0; i < 500; i++) {
-      final v = List<double>.generate(_dimensions, (_) => random.nextDouble() * 2 - 1);
+      final v = List<double>.generate(
+        _dimensions,
+        (_) => random.nextDouble() * 2 - 1,
+      );
       // Normalize
       double norm = 0;
       for (int j = 0; j < _dimensions; j++) norm += v[j] * v[j];
@@ -108,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isIndexing = false;
         _indexStatus = 'Index holds ${_index!.len} vectors of D=${_index!.dim}';
-        _timingInfo = 'Indexed 500 vectors in ${stopwatch.elapsedMilliseconds} ms';
+        _timingInfo =
+            'Indexed 500 vectors in ${stopwatch.elapsedMilliseconds} ms';
         _searchResults.clear();
       });
     } catch (e) {
@@ -123,8 +127,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_index == null || _allVectors.isEmpty) return;
 
     final stopwatch = Stopwatch()..start();
-    final query = _allVectors.first; // Search using first vector (should match ID 2000 perfectly)
-    
+    final query = _allVectors
+        .first; // Search using first vector (should match ID 2000 perfectly)
+
     List<int>? allowlist;
     if (_useAllowlist) {
       // Limit search to even IDs only
@@ -136,7 +141,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _searchResults = results;
-      _timingInfo = 'Found ${results.length} neighbors in ${stopwatch.elapsed.inMicroseconds} μs (${(stopwatch.elapsed.inMicroseconds / 1000.0).toStringAsFixed(3)} ms)';
+      _timingInfo =
+          'Found ${results.length} neighbors in ${stopwatch.elapsed.inMicroseconds} μs (${(stopwatch.elapsed.inMicroseconds / 1000.0).toStringAsFixed(3)} ms)';
     });
   }
 
@@ -181,7 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 8),
                     Text(
                       _indexStatus,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     if (_timingInfo.isNotEmpty) ...[
                       const SizedBox(height: 8),
@@ -193,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontFamily: 'monospace',
                         ),
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -237,7 +246,9 @@ class _HomeScreenState extends State<HomeScreen> {
             // Search filters
             SwitchListTile(
               title: const Text('Filter with Allowlist (Even IDs only)'),
-              subtitle: const Text('Restricts nearest neighbors to IDs 2000, 2002, 2004...'),
+              subtitle: const Text(
+                'Restricts nearest neighbors to IDs 2000, 2002, 2004...',
+              ),
               value: _useAllowlist,
               onChanged: _allVectors.isEmpty
                   ? null
@@ -292,7 +303,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   : 'Similarity Score: ${res.score.toStringAsFixed(6)}',
                             ),
                             trailing: isPerfectMatch
-                                ? const Icon(Icons.check_circle, color: Colors.green)
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
                                 : null,
                           ),
                         );

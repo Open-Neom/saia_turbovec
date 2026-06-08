@@ -14,7 +14,16 @@ void main() {
       expect(index.len, equals(0));
       expect(index.dim, equals(0));
 
-      final v1 = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]; // Dim = 8 (multiple of 8 required by turbovec)
+      final v1 = [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+      ]; // Dim = 8 (multiple of 8 required by turbovec)
       final v2 = [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
       index.add(101, v1);
@@ -35,7 +44,7 @@ void main() {
 
     test('Allowlist Filtered Search', () {
       final index = TurboVecIndex.createLazy(bitWidth: 4);
-      
+
       final v1 = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
       final v2 = [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
       final v3 = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0];

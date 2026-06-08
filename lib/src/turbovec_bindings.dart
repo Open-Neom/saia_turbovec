@@ -6,94 +6,75 @@ import 'package:ffi/ffi.dart';
 final class IdMapIndexOpaque extends ffi.Opaque {}
 
 // FFI function signatures (C types)
-typedef turbovec_create_index_C = ffi.Pointer<IdMapIndexOpaque> Function(
-  ffi.Size dim,
-  ffi.Size bitWidth,
-);
-typedef turbovec_create_lazy_index_C = ffi.Pointer<IdMapIndexOpaque> Function(
-  ffi.Size bitWidth,
-);
-typedef turbovec_add_with_ids_2d_C = ffi.Bool Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Pointer<ffi.Float> vectors,
-  ffi.Size dim,
-  ffi.Pointer<ffi.Uint64> ids,
-  ffi.Size count,
-);
-typedef turbovec_search_C = ffi.Size Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Pointer<ffi.Float> query,
-  ffi.Size k,
-  ffi.Pointer<ffi.Uint64> allowlist,
-  ffi.Size allowlistLen,
-  ffi.Pointer<ffi.Float> scoresOut,
-  ffi.Pointer<ffi.Uint64> idsOut,
-);
-typedef turbovec_remove_C = ffi.Bool Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Uint64 id,
-);
-typedef turbovec_write_C = ffi.Bool Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Pointer<Utf8> path,
-);
-typedef turbovec_load_C = ffi.Pointer<IdMapIndexOpaque> Function(
-  ffi.Pointer<Utf8> path,
-);
-typedef turbovec_free_index_C = ffi.Void Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-);
-typedef turbovec_len_C = ffi.Size Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-);
-typedef turbovec_dim_C = ffi.Size Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-);
+typedef turbovec_create_index_C =
+    ffi.Pointer<IdMapIndexOpaque> Function(ffi.Size dim, ffi.Size bitWidth);
+typedef turbovec_create_lazy_index_C =
+    ffi.Pointer<IdMapIndexOpaque> Function(ffi.Size bitWidth);
+typedef turbovec_add_with_ids_2d_C =
+    ffi.Bool Function(
+      ffi.Pointer<IdMapIndexOpaque> index,
+      ffi.Pointer<ffi.Float> vectors,
+      ffi.Size dim,
+      ffi.Pointer<ffi.Uint64> ids,
+      ffi.Size count,
+    );
+typedef turbovec_search_C =
+    ffi.Size Function(
+      ffi.Pointer<IdMapIndexOpaque> index,
+      ffi.Pointer<ffi.Float> query,
+      ffi.Size k,
+      ffi.Pointer<ffi.Uint64> allowlist,
+      ffi.Size allowlistLen,
+      ffi.Pointer<ffi.Float> scoresOut,
+      ffi.Pointer<ffi.Uint64> idsOut,
+    );
+typedef turbovec_remove_C =
+    ffi.Bool Function(ffi.Pointer<IdMapIndexOpaque> index, ffi.Uint64 id);
+typedef turbovec_write_C =
+    ffi.Bool Function(
+      ffi.Pointer<IdMapIndexOpaque> index,
+      ffi.Pointer<Utf8> path,
+    );
+typedef turbovec_load_C =
+    ffi.Pointer<IdMapIndexOpaque> Function(ffi.Pointer<Utf8> path);
+typedef turbovec_free_index_C =
+    ffi.Void Function(ffi.Pointer<IdMapIndexOpaque> index);
+typedef turbovec_len_C = ffi.Size Function(ffi.Pointer<IdMapIndexOpaque> index);
+typedef turbovec_dim_C = ffi.Size Function(ffi.Pointer<IdMapIndexOpaque> index);
 
 // Dart signatures
-typedef turbovec_create_index_Dart = ffi.Pointer<IdMapIndexOpaque> Function(
-  int dim,
-  int bitWidth,
-);
-typedef turbovec_create_lazy_index_Dart = ffi.Pointer<IdMapIndexOpaque> Function(
-  int bitWidth,
-);
-typedef turbovec_add_with_ids_2d_Dart = bool Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Pointer<ffi.Float> vectors,
-  int dim,
-  ffi.Pointer<ffi.Uint64> ids,
-  int count,
-);
-typedef turbovec_search_Dart = int Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Pointer<ffi.Float> query,
-  int k,
-  ffi.Pointer<ffi.Uint64> allowlist,
-  int allowlistLen,
-  ffi.Pointer<ffi.Float> scoresOut,
-  ffi.Pointer<ffi.Uint64> idsOut,
-);
-typedef turbovec_remove_Dart = bool Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  int id,
-);
-typedef turbovec_write_Dart = bool Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-  ffi.Pointer<Utf8> path,
-);
-typedef turbovec_load_Dart = ffi.Pointer<IdMapIndexOpaque> Function(
-  ffi.Pointer<Utf8> path,
-);
-typedef turbovec_free_index_Dart = void Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-);
-typedef turbovec_len_Dart = int Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-);
-typedef turbovec_dim_Dart = int Function(
-  ffi.Pointer<IdMapIndexOpaque> index,
-);
+typedef turbovec_create_index_Dart =
+    ffi.Pointer<IdMapIndexOpaque> Function(int dim, int bitWidth);
+typedef turbovec_create_lazy_index_Dart =
+    ffi.Pointer<IdMapIndexOpaque> Function(int bitWidth);
+typedef turbovec_add_with_ids_2d_Dart =
+    bool Function(
+      ffi.Pointer<IdMapIndexOpaque> index,
+      ffi.Pointer<ffi.Float> vectors,
+      int dim,
+      ffi.Pointer<ffi.Uint64> ids,
+      int count,
+    );
+typedef turbovec_search_Dart =
+    int Function(
+      ffi.Pointer<IdMapIndexOpaque> index,
+      ffi.Pointer<ffi.Float> query,
+      int k,
+      ffi.Pointer<ffi.Uint64> allowlist,
+      int allowlistLen,
+      ffi.Pointer<ffi.Float> scoresOut,
+      ffi.Pointer<ffi.Uint64> idsOut,
+    );
+typedef turbovec_remove_Dart =
+    bool Function(ffi.Pointer<IdMapIndexOpaque> index, int id);
+typedef turbovec_write_Dart =
+    bool Function(ffi.Pointer<IdMapIndexOpaque> index, ffi.Pointer<Utf8> path);
+typedef turbovec_load_Dart =
+    ffi.Pointer<IdMapIndexOpaque> Function(ffi.Pointer<Utf8> path);
+typedef turbovec_free_index_Dart =
+    void Function(ffi.Pointer<IdMapIndexOpaque> index);
+typedef turbovec_len_Dart = int Function(ffi.Pointer<IdMapIndexOpaque> index);
+typedef turbovec_dim_Dart = int Function(ffi.Pointer<IdMapIndexOpaque> index);
 
 class TurboVecBindings {
   static final TurboVecBindings instance = TurboVecBindings._();
@@ -147,7 +128,9 @@ class TurboVecBindings {
       try {
         return ffi.DynamicLibrary.open('libturbovec.dylib');
       } catch (_) {
-        return ffi.DynamicLibrary.open('Frameworks/turbovec.framework/turbovec');
+        return ffi.DynamicLibrary.open(
+          'Frameworks/turbovec.framework/turbovec',
+        );
       }
     } else if (Platform.isAndroid) {
       return ffi.DynamicLibrary.open('libturbovec.so');
@@ -159,20 +142,28 @@ class TurboVecBindings {
       return ffi.DynamicLibrary.open('libturbovec.so');
     }
 
-    throw UnsupportedError('Unsupported platform for turbovec: ${Platform.operatingSystem}');
+    throw UnsupportedError(
+      'Unsupported platform for turbovec: ${Platform.operatingSystem}',
+    );
   }
 
   void _resolveFunctions() {
     createIndex = _dylib
-        .lookup<ffi.NativeFunction<turbovec_create_index_C>>('turbovec_create_index')
+        .lookup<ffi.NativeFunction<turbovec_create_index_C>>(
+          'turbovec_create_index',
+        )
         .asFunction<turbovec_create_index_Dart>();
 
     createLazyIndex = _dylib
-        .lookup<ffi.NativeFunction<turbovec_create_lazy_index_C>>('turbovec_create_lazy_index')
+        .lookup<ffi.NativeFunction<turbovec_create_lazy_index_C>>(
+          'turbovec_create_lazy_index',
+        )
         .asFunction<turbovec_create_lazy_index_Dart>();
 
     addWithIds2d = _dylib
-        .lookup<ffi.NativeFunction<turbovec_add_with_ids_2d_C>>('turbovec_add_with_ids_2d')
+        .lookup<ffi.NativeFunction<turbovec_add_with_ids_2d_C>>(
+          'turbovec_add_with_ids_2d',
+        )
         .asFunction<turbovec_add_with_ids_2d_Dart>();
 
     search = _dylib
@@ -192,7 +183,9 @@ class TurboVecBindings {
         .asFunction<turbovec_load_Dart>();
 
     freeIndex = _dylib
-        .lookup<ffi.NativeFunction<turbovec_free_index_C>>('turbovec_free_index')
+        .lookup<ffi.NativeFunction<turbovec_free_index_C>>(
+          'turbovec_free_index',
+        )
         .asFunction<turbovec_free_index_Dart>();
 
     getLen = _dylib

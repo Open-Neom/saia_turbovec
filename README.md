@@ -70,8 +70,7 @@ Add `saia_turbovec` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  saia_turbovec:
-    path: path/to/neom_modules/ai/saia_turbovec
+  saia_turbovec: ^1.0.0
 ```
 
 ### 2. Developer Local Setup & Configuration

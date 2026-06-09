@@ -125,6 +125,21 @@ class TurboVecBindings {
 
     // 3. Production fallbacks based on platform
     if (Platform.isMacOS) {
+      // Check package-relative paths for test/CLI runner environments
+      final localPaths = [
+        'macos/libturbovec.dylib',
+        '../neom_modules/ai/saia_turbovec/macos/libturbovec.dylib',
+      ];
+      for (final path in localPaths) {
+        if (File(path).existsSync()) {
+          try {
+            return ffi.DynamicLibrary.open(path);
+          } catch (_) {
+            // Keep searching if loading fails
+          }
+        }
+      }
+
       try {
         return ffi.DynamicLibrary.open('libturbovec.dylib');
       } catch (_) {

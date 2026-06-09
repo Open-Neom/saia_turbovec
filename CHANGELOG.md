@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Fix package logo rendering on pub.dev by using absolute raw GitHub URL.
+
 ## 1.0.0
 
 * Initial release of `saia_turbovec`.

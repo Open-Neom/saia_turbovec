@@ -1,6 +1,6 @@
 # saia_turbovec
 
-![TurboVec Logo](assets/turbovec_logo.png)
+![TurboVec Logo](https://raw.githubusercontent.com/Open-Neom/saia_turbovec/main/assets/turbovec_logo.png)
 
 High-performance, **4-bit quantized vector similarity search** for Flutter and Dart. Encapsulates Google Research's **TurboQuant** algorithm via native FFI bindings, optimizing memory footprint and query speed for on-device long-term AI memory.
 

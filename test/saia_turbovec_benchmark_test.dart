@@ -7,7 +7,7 @@ void main() {
   test('Benchmark: Pure Dart Cosine Similarity vs TurboVec FFI Search', () {
     const int N = 1000; // number of vectors in DB
     const int D = 1536; // dimension of embeddings (Gemini/OpenAI)
-    const int K = 10;   // top K results
+    const int K = 10; // top K results
 
     print('=== starting saia_turbovec search benchmark ===');
     print('Generating synthetic dataset: $N vectors of dimension $D...');
@@ -49,12 +49,16 @@ void main() {
     }
     stopwatch1.stop();
     final time1 = stopwatch1.elapsedMicroseconds / 100;
-    print('  -> Baseline Dart loop latency: ${time1.toStringAsFixed(2)} us (${(time1 / 1000.0).toStringAsFixed(3)} ms)');
+    print(
+      '  -> Baseline Dart loop latency: ${time1.toStringAsFixed(2)} us (${(time1 / 1000.0).toStringAsFixed(3)} ms)',
+    );
 
     // -------------------------------------------------------------
     // BENCHMARK 2: Pure Dart TurboQuant Simulation (4-bit unpack)
     // -------------------------------------------------------------
-    print('\n[2/3] Running simulation: Pure Dart TurboQuant 4-bit (LUT & bitwise unpack)...');
+    print(
+      '\n[2/3] Running simulation: Pure Dart TurboQuant 4-bit (LUT & bitwise unpack)...',
+    );
     final List<Uint8List> dbPacked = List.generate(N, (_) {
       final bytes = Uint8List(D ~/ 2);
       for (int i = 0; i < D ~/ 2; i++) {
@@ -83,7 +87,9 @@ void main() {
     }
     stopwatch2.stop();
     final time2 = stopwatch2.elapsedMicroseconds / 100;
-    print('  -> Pure Dart TurboQuant latency: ${time2.toStringAsFixed(2)} us (${(time2 / 1000.0).toStringAsFixed(3)} ms)');
+    print(
+      '  -> Pure Dart TurboQuant latency: ${time2.toStringAsFixed(2)} us (${(time2 / 1000.0).toStringAsFixed(3)} ms)',
+    );
 
     // -------------------------------------------------------------
     // BENCHMARK 3: TurboVec Index via C/Rust FFI
@@ -99,14 +105,20 @@ void main() {
     }
     stopwatch3.stop();
     final time3 = stopwatch3.elapsedMicroseconds / 100;
-    print('  -> TurboVec FFI search latency: ${time3.toStringAsFixed(2)} us (${(time3 / 1000.0).toStringAsFixed(3)} ms)');
+    print(
+      '  -> TurboVec FFI search latency: ${time3.toStringAsFixed(2)} us (${(time3 / 1000.0).toStringAsFixed(3)} ms)',
+    );
 
     // 4. Verify relative speedup
     final speedupVsDart = time1 / time3;
     final speedupVsSim = time2 / time3;
     print('\n=== benchmark summary ===');
-    print('  - Speedup vs Dart Brute-force: ${speedupVsDart.toStringAsFixed(2)}x faster');
-    print('  - Speedup vs Dart TurboQuant Simulation: ${speedupVsSim.toStringAsFixed(2)}x faster');
+    print(
+      '  - Speedup vs Dart Brute-force: ${speedupVsDart.toStringAsFixed(2)}x faster',
+    );
+    print(
+      '  - Speedup vs Dart TurboQuant Simulation: ${speedupVsSim.toStringAsFixed(2)}x faster',
+    );
 
     index.close();
     expect(speedupVsDart, greaterThan(2.0)); // FFI must be significantly faster

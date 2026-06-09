@@ -119,7 +119,9 @@ class TurboVecBindings {
       if (File(envPath).existsSync()) {
         return ffi.DynamicLibrary.open(envPath);
       } else {
-        throw ArgumentError('Environment library path does not exist: $envPath');
+        throw ArgumentError(
+          'Environment library path does not exist: $envPath',
+        );
       }
     }
 

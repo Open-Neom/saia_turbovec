@@ -18,6 +18,20 @@ Developed under the architectural standards of **Open Neom**, this package provi
 
 ---
 
+## 📊 Performance Benchmarks
+
+Below are the official benchmark results executing a search query against a synthetic dataset of **1,000 vectors of dimension 1,536** (simulating a standard Gemini/OpenAI embedding database) on a macOS Apple Silicon host:
+
+| Implementation / Approach | Latency (μs) | Latency (ms) | Speedup vs Dart Loop | Speedup vs Dart Simulation | Description / Notes |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Dart Loop (Brute-Force)** | ~4,125 μs | 4.13 ms | 1.00x (Baseline) | - | Standard float32 cosine similarity loop in Dart |
+| **Pure Dart TurboQuant (Sim)** | ~7,285 μs | 7.29 ms | 0.57x (Slower) | 1.00x | Bitwise unpacking and LUT emulation in Dart |
+| **TurboVec FFI (SIMD Native)** | **~405 μs** | **0.41 ms** | **10.17x** | **17.95x** | **Rust optimized binary with ARM NEON / AVX** |
+
+*Benchmarks are executed automatically by running `flutter test test/saia_turbovec_benchmark_test.dart`.*
+
+---
+
 ## 🔬 Credits & Core Algorithm
 
 This library is a native FFI wrapper around `turbovec`, a Rust implementation of the **TurboQuant** algorithm developed by **Google Research**. 
@@ -87,7 +101,9 @@ void main() {
 
 ---
 
-## code example
+## 💻 Code Example
+
+Here is a complete example showing how to create a lazy index, add vectors, query them using allowlists (for workspace isolation), save the index to disk, and load it back:
 
 ```dart
 import 'package:saia_turbovec/saia_turbovec.dart';
@@ -118,11 +134,18 @@ void main() {
   final filteredResults = index.search(query, 5, allowlist: [102]);
   // Only ID 102 will be considered in the search
 
-  // 5. Save the index state
+  // 5. Save the index state to disk
   index.write('path/to/my_index.tvim');
 
-  // 6. Close the index to free native FFI memory
+  // 6. Close the active index to free native FFI memory
   index.close();
+
+  // 7. Load the index back from disk
+  final loadedIndex = TurboVecIndex.load('path/to/my_index.tvim');
+  print('Loaded index length: ${loadedIndex.len}'); // Prints: 2
+  
+  // Clean up loaded index memory
+  loadedIndex.close();
 }
 ```
 

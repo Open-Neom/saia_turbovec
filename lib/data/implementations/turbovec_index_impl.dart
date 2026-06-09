@@ -1,17 +1,18 @@
 import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart';
 import '../../domain/models/turbovec_result.dart';
+import '../../domain/use_cases/turbovec_index.dart';
 import 'turbovec_bindings.dart';
 
-/// A TurboQuant quantized vector index with stable external uint64 IDs.
-class TurboVecIndex {
+/// A concrete implementation of TurboVecIndex using FFI bindings.
+class TurboVecIndexImpl implements TurboVecIndex {
   ffi.Pointer<IdMapIndexOpaque> _ptr;
   bool _closed = false;
 
-  TurboVecIndex._(this._ptr);
+  TurboVecIndexImpl._(this._ptr);
 
   /// Load a previously saved index from [path].
-  factory TurboVecIndex.load(String path) {
+  factory TurboVecIndexImpl.load(String path) {
     final bindings = TurboVecBindings.instance;
     final pathPtr = path.toNativeUtf8();
     try {
@@ -19,30 +20,30 @@ class TurboVecIndex {
       if (ptr.address == 0) {
         throw StateError('Failed to load turbovec index from path: $path');
       }
-      return TurboVecIndex._(ptr);
+      return TurboVecIndexImpl._(ptr);
     } finally {
       malloc.free(pathPtr);
     }
   }
 
   /// Create an empty index that infers its dimension on the first add call.
-  factory TurboVecIndex.createLazy({int bitWidth = 4}) {
+  factory TurboVecIndexImpl.createLazy({int bitWidth = 4}) {
     final bindings = TurboVecBindings.instance;
     final ptr = bindings.createLazyIndex(bitWidth);
     if (ptr.address == 0) {
       throw StateError('Failed to create lazy turbovec index');
     }
-    return TurboVecIndex._(ptr);
+    return TurboVecIndexImpl._(ptr);
   }
 
   /// Create an empty index with a fixed dimensionality.
-  factory TurboVecIndex.create(int dim, {int bitWidth = 4}) {
+  factory TurboVecIndexImpl.create(int dim, {int bitWidth = 4}) {
     final bindings = TurboVecBindings.instance;
     final ptr = bindings.createIndex(dim, bitWidth);
     if (ptr.address == 0) {
       throw StateError('Failed to create turbovec index with dim $dim');
     }
-    return TurboVecIndex._(ptr);
+    return TurboVecIndexImpl._(ptr);
   }
 
   /// Ensure the index is not closed before operating on it.
@@ -53,18 +54,21 @@ class TurboVecIndex {
   }
 
   /// Get the number of vectors in the index.
+  @override
   int get len {
     _checkNotClosed();
     return TurboVecBindings.instance.getLen(_ptr);
   }
 
   /// Get the vector dimension, or 0 if not yet inferred.
+  @override
   int get dim {
     _checkNotClosed();
     return TurboVecBindings.instance.getDim(_ptr);
   }
 
   /// Add a single vector to the index.
+  @override
   void add(int id, List<double> vector) {
     _checkNotClosed();
     if (vector.isEmpty) return;
@@ -98,6 +102,7 @@ class TurboVecIndex {
   }
 
   /// Add a batch of vectors with stable 64-bit integer IDs.
+  @override
   void addBatch(List<int> ids, List<List<double>> vectors) {
     _checkNotClosed();
     if (ids.isEmpty || vectors.isEmpty) return;
@@ -152,6 +157,7 @@ class TurboVecIndex {
   /// Search the index for the top-[k] most similar matches to [query].
   ///
   /// Optionally restricts results to candidates in [allowlist].
+  @override
   List<TurboVecResult> search(
     List<double> query,
     int k, {
@@ -211,12 +217,14 @@ class TurboVecIndex {
   }
 
   /// Remove a vector by [id]. Returns true if found and removed.
+  @override
   bool remove(int id) {
     _checkNotClosed();
     return TurboVecBindings.instance.remove(_ptr, id);
   }
 
   /// Write the index file to [path].
+  @override
   void write(String path) {
     _checkNotClosed();
     final bindings = TurboVecBindings.instance;
@@ -232,6 +240,7 @@ class TurboVecIndex {
   }
 
   /// Free native memory allocated for this index.
+  @override
   void close() {
     if (_closed) return;
     TurboVecBindings.instance.freeIndex(_ptr);

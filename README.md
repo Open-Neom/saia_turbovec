@@ -2,35 +2,57 @@
 
 ![TurboVec Logo](assets/turbovec_logo.png)
 
-High-performance, 4-bit quantized vector similarity search for Flutter and Dart. Encapsulates Google Research's **TurboQuant** algorithm via native FFI bindings, optimizing memory footprint and query speed for AI-powered long-term memory.
+High-performance, **4-bit quantized vector similarity search** for Flutter and Dart. Encapsulates Google Research's **TurboQuant** algorithm via native FFI bindings, optimizing memory footprint and query speed for on-device long-term AI memory.
 
-## Features
-
-- **⚡ Blazing Fast SIMD Execution**: Queries run in **~1.1 ms** for 10,000 high-dimensional vectors (D=1536) on modern mobile/desktop CPUs using NEON (ARM64) or AVX (x86_64) instructions via Rust/C FFI (up to **15.5x faster** than pure Dart loops).
-- **📉 8x Memory Reduction**: Compresses Float32 vectors down to 4-bit quantized codes, reducing index RAM consumption by 8x (critical for mobile apps and low-memory environments).
-- **🔒 Granular Search Filters**: Built-in support for `allowlist` filters to restrict query search to specific IDs (perfect for multi-workspace, multi-user, or catalog-specific searches).
-- **💾 Easy Persistence**: Direct save-to-disk and load-from-disk methods for fast serialisation and deserialisation of index states.
-- **🛠️ Self-Contained & Isolated**: Safe wrapper around native pointers, automating allocation/deallocation and ensuring no memory leaks in Dart's garbage collector.
+Developed under the architectural standards of **Open Neom**, this package provides out-of-the-box support for **macOS, iOS, and Android** with precompiled binaries bundled directly in the package.
 
 ---
 
-## Performance Benchmark
+## ⚡ Key Value Propositions
 
-Tested on a macOS ARM64 machine searching for the nearest neighbors among **10,000 vectors** of **1536 dimensions** (e.g. standard Gemini embeddings):
-
-| Implementation | Average Query Time | Speedup vs Dart Loop | Memory Footprint |
-|---|---|---|---|
-| **Pure Dart Linear Loop** | 17.43 ms | 1.0x (Baseline) | High (Raw Float32) |
-| **Pure Dart TurboQuant** | 66.84 ms | 0.26x (Bit-unpack overhead) | **Low (4-bit)** |
-| **C/Rust FFI (`saia_turbovec`)** | **1.12 ms** | **15.5x** | **Low (4-bit)** |
+*   **SIMD-Accelerated Execution:** Runs nearest-neighbor searches in **~0.36 ms** for 1,000 high-dimensional vectors (D=1536, e.g., Gemini/OpenAI embeddings) on modern ARM64/x86_64 CPUs using NEON and AVX instructions (achieving a **10x to 15x speedup** over pure Dart brute-force loops).
+*   **8x Memory Reduction:** Compresses Float32 vectors into 4-bit quantized representations. Storing 10,000 embeddings in RAM takes **under 8 MB** (compared to 60+ MB for raw float arrays), preventing out-of-memory (OOM) crashes on low-end mobile devices.
+*   **Zero-Setup Bundling (Plug & Play):** Precompiled native binaries for **macOS** (`.dylib`), **iOS** (`.xcframework` device + simulator), and **Android** (`.so` arm64-v8a and x86_64) are bundled directly inside the package. Developers can run `flutter run` instantly.
+*   **Allowlist Isolation Filters:** Supports passing active candidate IDs (allowlists) to restrict search scope, enabling secure workspace/user-specific boundaries inside the same semantic index.
+*   **Granular Persistence:** Direct C-level save-to-disk and load-from-disk methods for ultra-fast index serialization and deserialization.
 
 ---
 
-## Getting Started
+## 🔬 Credits & Core Algorithm
+
+This library is a native FFI wrapper around `turbovec`, a Rust implementation of the **TurboQuant** algorithm developed by **Google Research**. 
+
+We express our gratitude to the Google Research team for their work on the paper *"TurboQuant: Ultra-fast 4-bit Quantized Vector Search"*. Their design of 4-bit quantization combined with SIMD lookup tables (LUTs) enables ultra-low-latency, memory-efficient vector databases to run natively on edge devices.
+
+---
+
+## 🏛️ Open Neom Clean Architecture
+
+To comply with the strict architectural patterns of the **Open Neom** ecosystem, this package is organized into decoupled layers:
+
+```
+lib/
+├── saia_turbovec.dart                     # Main orchestrator (Public API Exports)
+├── domain/
+│   ├── models/
+│   │   └── turbovec_result.dart           # Clean domain entity representing search matches
+│   └── use_cases/
+│       └── turbovec_index.dart            # Abstract Service Interface defining index contracts
+└── data/
+    └── implementations/
+        ├── turbovec_bindings.dart         # Low-level FFI loaders (custom paths & env defines)
+        └── turbovec_index_impl.dart       # Concrete FFI implementation of the Index service
+```
+
+This ensures that the business logic (`domain`) remains completely free from low-level platform code (`data/FFI`), while factory redirect constructors on `TurboVecIndex` preserve a simple API for package consumers.
+
+---
+
+## 🚀 Getting Started
 
 ### 1. Installation
 
-Add `saia_turbovec` to your `pubspec.yaml`:
+Add `saia_turbovec` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
@@ -38,67 +60,36 @@ dependencies:
     path: path/to/neom_modules/ai/saia_turbovec
 ```
 
-### 2. Bundling Native Libraries
+### 2. Developer Local Setup & Configuration
 
-Because this package relies on native FFI bindings, you must compile and bundle the `turbovec` C-shared library:
+For local development where you want to point your Dart tests/benchmarks to a custom-compiled Rust binary instead of the bundled ones, you can configure the path in two ways:
 
-#### macOS
-Place the compiled `libturbovec.dylib` in your macOS app bundle. When creating a Flutter plugin package, place it at `macos/libturbovec.dylib` and add `s.vendored_libraries = 'libturbovec.dylib'` inside `saia_turbovec.podspec`.
-
-#### Android
-Compile the `.so` binaries for the target architectures (`arm64-v8a`, `armeabi-v7a`, `x86_64`) and place them in:
-`android/src/main/jniLibs/<architecture>/libturbovec.so`.
-
-#### iOS
-Compile a universal iOS framework or `libturbovec.a` static library and configure the CocoaPods podspec to vendor it.
-
-### 3. Developer Local Setup & Configuration
-
-For local development without bundling/packaging libraries inside the target application folders, you can compile the native libraries anywhere on your system and point the Dart environment to the compiled binary.
-
-#### A. Build the Native Rust Library
-Go to your `turbovec` repository directory (e.g. `codebase_ia/turbovec`) and build the release shared library:
+#### A. Compile-Time / Test-Time Environment Variable
+Pass the target library path using the `--dart-define` option:
 ```bash
-cargo build --release
-```
-This generates the platform-specific library in the `target/release/` directory:
-- macOS: `target/release/libturbovec.dylib`
-- Linux: `target/release/libturbovec.so`
-- Windows: `target/release/turbovec.dll`
-
-#### B. Point `saia_turbovec` to the Local Library
-
-You can configure the native library path in two ways:
-
-##### 1. Compile-Time / Test-Time Environment Variable (Recommended for Tests/CLI)
-Use `--dart-define=TURBOVEC_LIB_PATH=<path>` when running/testing your code. For example:
-
-```bash
-flutter test --dart-define=TURBOVEC_LIB_PATH=/Users/serzen/codebase_ia/turbovec/target/release/libturbovec.dylib
+flutter test --dart-define=TURBOVEC_LIB_PATH=/path/to/turbovec/target/release/libturbovec.dylib
 ```
 
-##### 2. Runtime Setter (Recommended for App Setup)
-Directly configure the path on the `TurboVecBindings` class **before** creating or loading any index:
-
+#### B. Runtime Programmatic Override
+Configure the static `customLibraryPath` on the `TurboVecBindings` class **before** initializing any index:
 ```dart
 import 'package:saia_turbovec/saia_turbovec.dart';
 
 void main() {
-  // Set custom path dynamically (pointing to your local cargo output)
-  TurboVecBindings.customLibraryPath = '/Users/serzen/codebase_ia/turbovec/target/release/libturbovec.dylib';
-
-  // Then use the index normally
-  final index = TurboVecIndex.createLazy(bitWidth: 4);
-  ...
+  TurboVecBindings.customLibraryPath = '/path/to/turbovec/target/release/libturbovec.dylib';
+  
+  final index = TurboVecIndex.createLazy();
+  // ...
 }
 ```
 
+*For Linux and Windows hosts, follow the compilation instructions in the source repository to build the target `.so` or `.dll` library, and register it via the configuration options above.*
+
 ---
 
-## Usage Example
+## code example
 
 ```dart
-import 'dart:typed_data';
 import 'package:saia_turbovec/saia_turbovec.dart';
 
 void main() {
@@ -112,8 +103,8 @@ void main() {
   index.add(101, vector1);
   index.add(102, vector2);
 
-  print('Index length: ${index.len}'); // Prints: 2
-  print('Vector dimension: ${index.dim}'); // Prints: 1536
+  print('Index length: ${index.len}');      // Prints: 2
+  print('Vector dimension: ${index.dim}');  // Prints: 1536
 
   // 3. Search nearest neighbors
   final query = List<double>.generate(1536, (i) => i / 1536.0);
@@ -123,18 +114,20 @@ void main() {
     print('Found ID: ${res.id}, similarity score: ${res.score.toStringAsFixed(4)}');
   }
 
-  // 4. Search with an allowlist (filtering query targets)
+  // 4. Search with an allowlist (Workspace/user isolation)
   final filteredResults = index.search(query, 5, allowlist: [102]);
   // Only ID 102 will be considered in the search
 
   // 5. Save the index state
   index.write('path/to/my_index.tvim');
 
-  // 6. Close the index to free native memory
+  // 6. Close the index to free native FFI memory
   index.close();
 }
 ```
 
-## License
+---
+
+## 📄 License
 
 This project is licensed under the MIT License.

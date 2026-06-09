@@ -100,9 +100,50 @@ void main() {
 
 ---
 
-## 💻 Code Example
+## 💻 Code Examples
 
-Here is a complete example showing how to create a lazy index, add vectors, query them using allowlists (for workspace isolation), save the index to disk, and load it back:
+### 1. Basic Use Case: On-Device AI Chat Assistant Memory
+
+Here is how you can store high-dimensional embeddings of past chat messages and query them to retrieve semantically relevant context when a user asks a new question.
+
+```dart
+import 'package:saia_turbovec/saia_turbovec.dart';
+
+void main() {
+  // 1. Create a vector index for standard 1536-dimensional embeddings (e.g., Gemini/OpenAI)
+  final memoryIndex = TurboVecIndex.create(1536);
+
+  // 2. Add embeddings of past messages to the AI assistant's memory
+  // (In a real app, you generate these 1536-dim vectors from your embedding provider)
+  final emailMemory = List<double>.filled(1536, 0.1);    // "My email address is user@example.com"
+  final profileMemory = List<double>.filled(1536, 0.95);  // "I want to change my profile picture"
+  final hobbyMemory = List<double>.filled(1536, 0.5);    // "I love coding Flutter apps at night"
+
+  memoryIndex.add(101, emailMemory);   // ID 101: Email info
+  memoryIndex.add(102, profileMemory); // ID 102: Profile photo info
+  memoryIndex.add(103, hobbyMemory);   // ID 103: Coding hobby info
+
+  // 3. User asks a new question: "How do I update my avatar image?"
+  // We generate an embedding for this query (semantically close to profileMemory)
+  final userQueryEmbedding = List<double>.filled(1536, 0.90);
+
+  // 4. Search for the top 1 most relevant past memory to feed as context to the AI model
+  final nearestMemories = memoryIndex.search(userQueryEmbedding, 1);
+
+  if (nearestMemories.isNotEmpty) {
+    final bestMatch = nearestMemories.first;
+    print('Nearest Memory ID: ${bestMatch.id}'); // Prints: 102 (Matches profile photo info!)
+    print('Similarity Score: ${bestMatch.score.toStringAsFixed(4)}');
+  }
+
+  // 5. Always close the index to free native FFI C-heap memory
+  memoryIndex.close();
+}
+```
+
+### 2. Advanced Usage: Persistence & Workspace Isolation
+
+Here is how to use lazy dimension initialization, configure allowlists to restrict search scope to specific workspaces/users, and serialize/deserialize the index to disk.
 
 ```dart
 import 'package:saia_turbovec/saia_turbovec.dart';
@@ -130,13 +171,13 @@ void main() {
   }
 
   // 4. Search with an allowlist (Workspace/user isolation)
+  // Only ID 102 will be considered in the search space
   final filteredResults = index.search(query, 5, allowlist: [102]);
-  // Only ID 102 will be considered in the search
 
   // 5. Save the index state to disk
   index.write('path/to/my_index.tvim');
 
-  // 6. Close the active index to free native FFI memory
+  // 6. Close the active index to free native memory
   index.close();
 
   // 7. Load the index back from disk

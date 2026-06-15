@@ -1,0 +1,6 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/data/implementations/turbovec_index_stub.dart
+    - lib/domain/use_cases/turbovec_index.dart

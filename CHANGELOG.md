@@ -1,3 +1,8 @@
+# Changelog - saia_turbovec
+
+## Unreleased - System updates
+- Actualizaciones de estabilidad y compatibilidad.
+
 ## 1.0.1
 
 * Fix package logo rendering on pub.dev by using absolute raw GitHub URL.

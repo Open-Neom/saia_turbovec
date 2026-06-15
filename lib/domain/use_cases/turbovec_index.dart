@@ -1,21 +1,46 @@
 import '../models/turbovec_result.dart';
-import '../../data/implementations/turbovec_index_impl.dart';
 
 /// An on-device vector index that provides ultra-fast, 4-bit quantized
 /// similarity search.
 abstract class TurboVecIndex {
+  static TurboVecIndex Function(String path)? loadBuilder;
+  static TurboVecIndex Function({int? bitWidth})? createLazyBuilder;
+  static TurboVecIndex Function(int dim, {int? bitWidth})? createBuilder;
+
   /// Loads an existing index from the specified file [path].
-  factory TurboVecIndex.load(String path) = TurboVecIndexImpl.load;
+  factory TurboVecIndex.load(String path) {
+    if (loadBuilder == null) {
+      throw StateError(
+        'TurboVecIndex.loadBuilder is not registered. '
+        'Make sure to call initSaiaTurbovec() during app startup.'
+      );
+    }
+    return loadBuilder!(path);
+  }
 
   /// Creates a lazy index that infers the dimensions from the first added vector.
   /// The [bitWidth] specifies the quantization bit width (default is 4).
-  factory TurboVecIndex.createLazy({int bitWidth}) =
-      TurboVecIndexImpl.createLazy;
+  factory TurboVecIndex.createLazy({int? bitWidth}) {
+    if (createLazyBuilder == null) {
+      throw StateError(
+        'TurboVecIndex.createLazyBuilder is not registered. '
+        'Make sure to call initSaiaTurbovec() during app startup.'
+      );
+    }
+    return createLazyBuilder!(bitWidth: bitWidth);
+  }
 
   /// Creates an index with a pre-defined vector dimension [dim].
   /// The [bitWidth] specifies the quantization bit width (default is 4).
-  factory TurboVecIndex.create(int dim, {int bitWidth}) =
-      TurboVecIndexImpl.create;
+  factory TurboVecIndex.create(int dim, {int? bitWidth}) {
+    if (createBuilder == null) {
+      throw StateError(
+        'TurboVecIndex.createBuilder is not registered. '
+        'Make sure to call initSaiaTurbovec() during app startup.'
+      );
+    }
+    return createBuilder!(dim, bitWidth: bitWidth);
+  }
 
   /// Returns the number of vectors stored in the index.
   int get len;

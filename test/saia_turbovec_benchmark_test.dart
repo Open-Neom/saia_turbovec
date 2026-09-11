@@ -4,6 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:saia_turbovec/saia_turbovec.dart';
 
 void main() {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    // Register the FFI-backed builders; the TurboVecIndex factories throw
+    // without it.
+    initSaiaTurbovec();
+  });
+
   test('Benchmark: Pure Dart Cosine Similarity vs TurboVec FFI Search', () {
     const int N = 1000; // number of vectors in DB
     const int D = 1536; // dimension of embeddings (Gemini/OpenAI)

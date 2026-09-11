@@ -1,0 +1,65 @@
+{
+  "_comment": [
+    "Procedencia de los binarios nativos de turbovec.",
+    "",
+    "Por que existe: el dylib de macOS estuvo meses compilado desde un",
+    "turbovec anterior al sync de 200 commits. Buscaba correctamente y los",
+    "tests pasaban, asi que nada lo delataba — solo iba ~2x mas lento en",
+    "corpus pequenos. Un checksum solo detecta cambios inesperados; lo que",
+    "faltaba era saber DE QUE FUENTE salio cada binario.",
+    "",
+    "Al sincronizar codebase_ia/turbovec, comparar 'upstream_version' con",
+    "el Cargo.toml de la fuente. Si difieren, los binarios estan obsoletos",
+    "y hay que regenerarlos (ver build_notes).",
+    "",
+    "Patron tomado de runanywhere-sdks, que documento la misma recurrencia",
+    "de 'checksum staleness' en sus artefactos nativos.",
+    "",
+    "2026-09-05 - install_name en macOS. cargo deja grabada en el dylib la",
+    "ruta ABSOLUTA de su directorio de compilacion:",
+    "  /Users/<quien-compilo>/.../target/release/deps/libturbovec.dylib",
+    "La app SI empaqueta el dylib en Contents/Frameworks, pero el binario lo",
+    "referencia por esa ruta, asi que dyld lo busca donde ya no esta y la app",
+    "no arranca:",
+    "  dyld: Library not loaded: /Users/serzen/codebase_ia/turbovec/...",
+    "Funcionaba solo en la maquina que lo compilo, y solo mientras no moviera",
+    "la fuente. En cualquier otra: crash al lanzar, sin llegar a Flutter.",
+    "",
+    "Por eso el paso de install_name_tool es OBLIGATORIO tras cada cargo",
+    "build, y por eso se registra aqui 'install_name': si vuelve a aparecer",
+    "una ruta absoluta, el binario esta mal generado."
+  ],
+  "upstream_version": "1.0.0",
+  "upstream_repo": "https://github.com/RyanCodrai/turbovec",
+  "built_on": "2026-09-02",
+  "expected_symbols": 11,
+  "build_notes": {
+    "macos": "cargo build --release -p turbovec  (aarch64-apple-darwin), SEGUIDO DE: install_name_tool -id @rpath/libturbovec.dylib <dylib>",
+    "ios": "cargo build --release -p turbovec --target aarch64-apple-ios[-sim]",
+    "android": "AR=<ndk>/llvm-ar CARGO_TARGET_<ABI>_LINKER=<ndk>/<abi>21-clang cargo build --release -p turbovec --target <abi>",
+    "local_delta": "turbovec/Cargo.toml necesita [lib] crate-type=[rlib,cdylib,staticlib]; turbovec/src/capi.rs es local (no upstream)."
+  },
+  "binaries": {
+    "macos/libturbovec.dylib": {
+      "sha256": "814ba511fa15183dafda8a781264e7888bc7e82008b1e61fb2b4df12cc22945b",
+      "bytes": 983088,
+      "install_name": "@rpath/libturbovec.dylib"
+    },
+    "android/src/main/jniLibs/arm64-v8a/libturbovec.so": {
+      "sha256": "e880b2a19a2c04c47c0e4306660b86dbdd2e9db8e3c42637472e023137a02096",
+      "bytes": 1170656
+    },
+    "android/src/main/jniLibs/x86_64/libturbovec.so": {
+      "sha256": "f7d8a471c137b370a4d2c7d429bd9f99ddff18d83d122c9d10e8268f0eb211f0",
+      "bytes": 1168896
+    },
+    "ios/turbovec.xcframework/ios-arm64/libturbovec.a": {
+      "sha256": "fcf61a8fd74889421201bf12bb11924146f544ff007ccec5920e445c395843cb",
+      "bytes": 23075016
+    },
+    "ios/turbovec.xcframework/ios-arm64-simulator/libturbovec.a": {
+      "sha256": "07ed32c5588f7e3de47ba9763d8ad00a6a74c6074dd7309b6e000bfdd56391c8",
+      "bytes": 23070304
+    }
+  }
+}

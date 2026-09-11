@@ -6,6 +6,10 @@ void main() {
   setUpAll(() {
     // Ensure the Flutter binding is initialized if needed
     TestWidgetsFlutterBinding.ensureInitialized();
+    // Register the FFI-backed builders; the TurboVecIndex factories throw
+    // without it. The dylib itself resolves via the macOS package-relative
+    // fallback in TurboVecBindings.
+    initSaiaTurbovec();
   });
 
   group('TurboVecIndex Tests', () {

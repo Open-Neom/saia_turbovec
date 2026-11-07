@@ -1,7 +1,7 @@
 # Changelog - saia_turbovec
 
-## Unreleased - System updates
-- Actualizaciones de estabilidad y compatibilidad.
+## 1.0.2
+* Add `Open-Neom` GitHub Sponsors `funding` and `issue_tracker` metadata, plus ecosystem compatibility updates.
 
 ## 1.0.1
 

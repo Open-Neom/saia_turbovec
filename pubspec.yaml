@@ -1,8 +1,11 @@
 name: saia_turbovec
 description: Native bindings for turbovec (TurboQuant vector index) via Dart FFI.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/Open-Neom/saia_turbovec
 repository: https://github.com/Open-Neom/saia_turbovec
+issue_tracker: https://github.com/Open-Neom/saia_turbovec/issues
+funding:
+  - https://github.com/sponsors/Open-Neom
 
 environment:
   sdk: ">=3.8.0 <4.0.0"

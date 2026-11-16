@@ -1,13 +1,13 @@
-library saia_turbovec;
+library;
 
 import 'domain/use_cases/turbovec_index.dart';
 import 'data/implementations/turbovec_index_stub.dart'
-    if (dart.library.io) 'data/implementations/turbovec_index_impl.dart';
+    if (dart.library.ffi) 'data/implementations/turbovec_index_impl.dart';
 
 export 'domain/models/turbovec_result.dart';
 export 'domain/use_cases/turbovec_index.dart';
 export 'data/implementations/turbovec_bindings_web.dart'
-    if (dart.library.io) 'data/implementations/turbovec_bindings.dart'
+    if (dart.library.ffi) 'data/implementations/turbovec_bindings.dart'
     show TurboVecBindings;
 
 void initSaiaTurbovec() {

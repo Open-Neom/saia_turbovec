@@ -3,26 +3,35 @@ import '../../domain/use_cases/turbovec_index.dart';
 
 /// A stub/mock implementation of TurboVecIndex for platforms where FFI is not supported.
 class TurboVecIndexImpl implements TurboVecIndex {
+  static const int maxDimension = TurboVecSecurityPolicy.maxDimension;
+  static const int maxSearchK = TurboVecSecurityPolicy.maxSearchK;
+  static const int maxBatchVectors = TurboVecSecurityPolicy.maxBatchVectors;
+  static const int maxAllowlistSize = TurboVecSecurityPolicy.maxAllowlistSize;
+  static const Set<int> supportedBitWidths =
+      TurboVecSecurityPolicy.supportedBitWidths;
+
   @override
   int get len => 0;
 
   @override
   int get dim => 0;
 
-  TurboVecIndexImpl._();
-
   /// Loads an existing index from the specified file [path].
   factory TurboVecIndexImpl.load(String path) {
+    TurboVecSecurityPolicy.validatePath(path);
     throw UnsupportedError('TurboVecIndex is not supported on this platform.');
   }
 
   /// Creates a lazy index that infers the dimensions from the first added vector.
   factory TurboVecIndexImpl.createLazy({int bitWidth = 4}) {
+    TurboVecSecurityPolicy.validateBitWidth(bitWidth);
     throw UnsupportedError('TurboVecIndex is not supported on this platform.');
   }
 
   /// Creates an index with a pre-defined vector dimension [dim].
   factory TurboVecIndexImpl.create(int dim, {int bitWidth = 4}) {
+    TurboVecSecurityPolicy.validateDim(dim);
+    TurboVecSecurityPolicy.validateBitWidth(bitWidth);
     throw UnsupportedError('TurboVecIndex is not supported on this platform.');
   }
 
@@ -52,6 +61,7 @@ class TurboVecIndexImpl implements TurboVecIndex {
 
   @override
   void write(String path) {
+    TurboVecSecurityPolicy.validatePath(path);
     throw UnsupportedError('TurboVecIndex is not supported on this platform.');
   }
 
